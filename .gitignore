@@ -1,0 +1,9 @@
+#ignore build files
+*.exe
+
+#ignore dirs
+bin/
+.vscode/
+
+#ignore special files
+test.py
