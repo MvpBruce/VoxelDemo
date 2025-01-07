@@ -9,12 +9,18 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <unordered_map>
 
 class Shader
 {
 public:
-    Shader() = default;
-    Shader(const char* pszVertex, const char* pszFragment)
+    static Shader& GetInstance()
+    {
+        static Shader shader;
+        return shader;
+    }
+
+    void Load(const char* pszVertex, const char* pszFragment)
     {
         std::string vs = ReadShader(pszVertex);
         std::string fs = ReadShader(pszFragment);
@@ -64,6 +70,9 @@ public:
     }
 
 private:
+    Shader() = default;
+    Shader(const Shader&) = delete;
+    Shader& operator=(const Shader&) = delete;
     std::string ReadShader(const char* pFile)
     {
         std::ifstream ifs;
@@ -93,6 +102,7 @@ private:
 
 private:
     unsigned int m_nID;
+    std::unordered_map<const char*, unsigned int> m_mapShaders;
 };
 
 #endif

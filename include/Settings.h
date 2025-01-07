@@ -1,15 +1,21 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include <vector>
+#include <unordered_map>
+#include <memory>
+#include <iostream>
 
 #define CALLERROR(func)\
+        {\
         func;\
         unsigned int nError = glGetError();\
         if (nError != GL_NO_ERROR)\
         {\
             std::cout << "[OpenGL ERROR]: " << nError << " " << #func << " " << __FILE__ << " " << __LINE__ << std::endl;\
+        }\
         }\
 
 // settings
@@ -32,18 +38,17 @@ const glm::vec3 FRONT = glm::vec3(0.0f, 0.0f, -1.0f);
 const glm::vec3 RIGHT = glm::vec3(1.0f, 0.0f, 0.0f);
 const glm::vec3 UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
-
-//Player
-const glm::vec3 PALYER_POS = glm::vec3(HALF_CHUNK_SIZE, CHUNK_SIZE, 1.5f * CHUNK_SIZE);
-//const glm::vec3 PALYER_POS = glm::vec3(0, 0, 5.0f);
-float MOUSE_SENSITIVITY = 0.09f;
-float PLAYER_SPEED = 20.0f;
-
 //World
-const unsigned int WORLD_W = 20;
-const unsigned int WORLD_D = 20;
+const unsigned int WORLD_W = 2;
+const unsigned int WORLD_D = 2;
 const unsigned int WORLD_H = 2;
 const unsigned int WORLD_AREA = WORLD_W * WORLD_D;
 const unsigned int WORLD_VOL = WORLD_AREA * WORLD_H;
 
+
+//Player
+const glm::vec3 PALYER_POS = glm::vec3(WORLD_W / 2, WORLD_H, 1.5f * WORLD_W);
+//const glm::vec3 PALYER_POS = glm::vec3(0, 0, 5.0f);
+const float MOUSE_SENSITIVITY = 0.09f;
+const float PLAYER_SPEED = 20.0f;
 

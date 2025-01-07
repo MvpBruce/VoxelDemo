@@ -67,7 +67,9 @@
         "iterator": "cpp",
         "memory_resource": "cpp",
         "optional": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "map": "cpp",
+        "set": "cpp"
     },
     "C_Cpp.default.compilerPath": "e:\\Program Files (x86)\\mingw64\\bin\\gcc.exe"
 }

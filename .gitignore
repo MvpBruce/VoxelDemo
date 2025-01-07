@@ -6,4 +6,4 @@ bin/
 .vscode/
 
 #ignore special files
-test.py
+
