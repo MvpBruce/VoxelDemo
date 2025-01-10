@@ -30,7 +30,6 @@ private:
 public:
     std::shared_ptr<VertexArray> m_ptrVertexArray;
     std::shared_ptr<VertexBuffer> m_ptrVertexBuffer;
-    //std::shared_ptr<Shader> m_ptrShader;
 
 public:
     VoxelGame(/* args */);

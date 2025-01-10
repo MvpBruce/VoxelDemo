@@ -15,14 +15,20 @@ const int uv_indicecs[12] = int[12](
 );
 
 out vec2 tex_Coord;
+out float randomNum;
 
 uniform mat4 model;
 uniform mat4 project;
 uniform mat4 view;
 
+float rand(vec2 co){
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 void main()
 {
     int uv_index = gl_VertexID % 6 + (face_id & 1) * 6;
     tex_Coord = uv_coords[uv_indicecs[uv_index]];
+    randomNum = rand(vec2(aPos.x, aPos.z));
     gl_Position = project * view * model * vec4(aPos, 1.0);
 }

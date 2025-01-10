@@ -16,4 +16,6 @@ public:
     ~World();
 
     void Render();
+    Chunk* GetChunkByIndex(unsigned int nIndex);
+    void BuildChunkMesh();
 };

@@ -12,12 +12,6 @@ float VoxelGame::m_fLastY = SCR_HEIGHT / 2;
 
 std::shared_ptr<Camera> VoxelGame::s_ptrCamera = nullptr;
 
-float vertex[] = {
-        -1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        0.0f, -1.0f, 0.0f
-    };
-
 VoxelGame::VoxelGame():
 m_fLastTime(0.0f), m_fDeltaTime(0.0f), 
 m_ptrTexture(nullptr), m_ptrWorld(nullptr)
@@ -46,7 +40,12 @@ bool VoxelGame::InitGLW()
 {
     // glfw: initialize and configure
     // ------------------------------
-    glfwInit();
+    if (!glfwInit())
+    {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        return false;
+    }
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -56,8 +55,8 @@ bool VoxelGame::InitGLW()
 
     // glfw window creation
     // --------------------
-    m_pGLFWwindow = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGLDemo", NULL, NULL);
-    if (m_pGLFWwindow == NULL)
+    m_pGLFWwindow = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGLDemo", nullptr, nullptr);
+    if (m_pGLFWwindow == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -91,11 +90,6 @@ bool VoxelGame::InitGLW()
 void VoxelGame::InitGame()
 {
     s_ptrCamera = std::make_shared<Camera>();
-    // //todo, shader??
-    // if (!m_ptrShader)
-    //     m_ptrShader = std::make_shared<Shader>();
-
-    // m_ptrShader->Load("res/shaders/chunk.vs", "res/shaders/chunk.fs");
     Shader::GetInstance().Load("res/shaders/chunk.vs", "res/shaders/chunk.fs");
     Shader::GetInstance().Use();
 
@@ -110,9 +104,6 @@ void VoxelGame::InitGame()
     if (!m_ptrWorld)
         m_ptrWorld = std::make_shared<World>(this);
 
-    glm::mat4 matModel(1.0f);
-    //Shader::GetInstance().SetMatrix("model", matModel);
-    //Shader::GetInstance().SetMatrix("view", s_ptrCamera->GetViewMatrix());
     Shader::GetInstance().SetMatrix("project", s_ptrCamera->GetProjectMatrix());
 }
 
@@ -162,6 +153,8 @@ void VoxelGame::Update()
     float fCurTime = static_cast<float>(glfwGetTime());
     m_fDeltaTime = fCurTime - m_fLastTime;
     m_fLastTime = fCurTime;
+
+    m_ptrWorld->BuildChunkMesh();
 }
 
 void VoxelGame::mouseCallback(GLFWwindow *window, double xpos, double ypos)

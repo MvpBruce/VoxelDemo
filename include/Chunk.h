@@ -2,9 +2,8 @@
 #include "Settings.h"
 #include <glm/matrix.hpp>
 
-// class VertexArray;
-// class VertexBuffer;
 class VoxelGame;
+class World;
 class Chunk
 {
 private:
@@ -21,25 +20,26 @@ private:
         unsigned int m_face_id;
     };
 
-    std::vector<unsigned int> m_vVoxels;
+    unsigned int* m_pVoxels;
     std::vector<VertexData> m_vVertices;
     glm::vec3 m_vPosition;
     glm::mat4 m_matModel;
     VoxelGame* m_pGame;
-    //std::shared_ptr<VertexArray> m_ptrVertexArray;
-    //std::shared_ptr<VertexBuffer> m_ptrVertexBuffer;
+    World* m_pWorld;
     
 public:
-    Chunk(VoxelGame* pGame, glm::vec3 vPosition);
+    Chunk(VoxelGame* pGame, glm::vec3 vPosition, World* pWorld);
     ~Chunk();
  
     glm::mat4& getModelMatrix();
     unsigned int* GetData();
     unsigned int GetSize();
     unsigned int GetCount();
-    bool IsEmpty(int x, int y, int z, std::vector<unsigned int>& vVoxels);
+    bool IsEmpty(glm::vec3 vLocal, glm::vec3 vWorld);
     void Render();
     void BuildChunkMesh();
     void BuildVoxels();
     void PrepareData();
+    int GetIndexInWorld(glm::vec3 vWorld);
+    int GetChunkValue(unsigned int nIndex);
 };
