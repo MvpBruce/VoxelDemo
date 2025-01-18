@@ -8,12 +8,14 @@
 #include "VertexArray.h"
 #include "World.h"
 
-Chunk::Chunk(VoxelGame* pGame, glm::vec3 vPosition, World* pWorld): m_pGame(pGame), m_vPosition(vPosition),
-m_pWorld(pWorld)
+Chunk::Chunk(glm::vec3 vPosition, World* pWorld): m_vPosition(vPosition),
+m_pWorld(pWorld), m_bLoaded(false)
 {
     m_matModel = glm::translate(glm::mat4(1.0f), m_vPosition * (float)CHUNK_SIZE);
     m_pVoxels = new unsigned int[CHUNK_VOL];
     memset(m_pVoxels, 0, CHUNK_VOL * sizeof(unsigned int));
+    m_ptrVertexArray = std::make_shared<VertexArray>();
+    m_ptrVertexBuffer = std::make_shared<VertexBuffer>();
     BuildVoxels();
 }
 
@@ -55,7 +57,7 @@ int Chunk::GetIndexInWorld(glm::vec3 vWorld)
     if (cx < 0 || cx >= WORLD_W || cy < 0 || cy >= WORLD_H || cz < 0 || cz >= WORLD_D)
         return -1;
 
-    return (int)(cx + cz * WORLD_W + cy * WORLD_AREA);
+    return (int)(cx + cz * WORLD_D + cy * WORLD_AREA);
 }
 
 int Chunk::GetChunkValue(unsigned int nIndex)
@@ -72,12 +74,9 @@ bool Chunk::IsEmpty(glm::vec3 vLocal, glm::vec3 vWorld)
         return false;
 
     Chunk* pChunk = m_pWorld->GetChunkByIndex(nChunkIndex);
-    if (!pChunk)
-        return true;
-
     int nVoxelIndex = (int)vLocal.x % CHUNK_SIZE + (int)vLocal.z % CHUNK_SIZE * CHUNK_SIZE + (int)vLocal.y % CHUNK_SIZE * CHUNK_AREA;
     //Voxel is not empty
-    if (pChunk->GetChunkValue(nVoxelIndex))
+    if (pChunk->GetChunkValue(nVoxelIndex) != 0)
         return false;
     
     return true;
@@ -86,18 +85,19 @@ bool Chunk::IsEmpty(glm::vec3 vLocal, glm::vec3 vWorld)
 void Chunk::Render()
 {
     PrepareData();
-    //m_pGame->m_ptrVertexArray->Bind();
+    m_ptrVertexArray->Bind();
     Shader::GetInstance().SetMatrix("model", m_matModel);  
     CALLERROR(glDrawArrays(GL_TRIANGLES, 0, GetCount()));
+    //std::cout << "Count: " << GetCount() << std::endl;
 }
 
 void Chunk::BuildChunkMesh()
 {
-    for (unsigned int x = 0; x < CHUNK_SIZE; x++)
+    for (int x = 0; x < CHUNK_SIZE; x++)
     {
-        for (unsigned int y = 0; y < CHUNK_SIZE; y++)
+        for (int y = 0; y < CHUNK_SIZE; y++)
         {
-            for (unsigned int z = 0; z < CHUNK_SIZE; z++)
+            for (int z = 0; z < CHUNK_SIZE; z++)
             {
                 unsigned int nVoxelId = m_pVoxels[x + CHUNK_SIZE * z + CHUNK_AREA * y];
                 //0 is empty
@@ -105,6 +105,10 @@ void Chunk::BuildChunkMesh()
                     continue;
 
                 glm::vec3 vWorldPos = m_vPosition * (float)CHUNK_SIZE;
+                vWorldPos.x += x;
+                vWorldPos.y += y;
+                vWorldPos.z += z;
+                
                 //top face
                 if (IsEmpty(glm::vec3(x, y + 1, z), glm::vec3(vWorldPos.x, vWorldPos.y + 1, vWorldPos.z)))
                 {
@@ -215,13 +219,13 @@ void Chunk::BuildVoxels()
         for (int z = 0; z < CHUNK_SIZE; z++)
         {
             wz = z + vPos.z;
-            nWorldHeight = glm::simplex(glm::vec2(wx, wz) * 0.1f) * 32 + 32;
+            nWorldHeight = glm::simplex(glm::vec2(wx, wz) * 0.01f) * 32 + 32;
             nLocalHeight = glm::min(nWorldHeight - vPos.y, (int)CHUNK_SIZE);
             for (int y = 0; y < nLocalHeight; y++)
             {
                 wy = y + vPos.y;
-                //float fSimplex = glm::simplex(glm::vec3(x, y, z)) + 1;
                 m_pVoxels[x + CHUNK_SIZE * z + CHUNK_AREA * y] = wy + 1;
+                //std::cout << wy + 1 << std::endl;
             }
         }
     }
@@ -229,11 +233,15 @@ void Chunk::BuildVoxels()
 
 void Chunk::PrepareData()
 {
-    m_pGame->m_ptrVertexBuffer->AttachData(GetData(), GetSize());
+    if (m_bLoaded)
+        return;
+
+    m_ptrVertexBuffer->AttachData(GetData(), GetSize());
     VertexBufferLayout vLayout;
     vLayout.AddLayout<unsigned int>(3);
     vLayout.AddLayout<unsigned int>(1);
     vLayout.AddLayout<unsigned int>(1);
 
-    m_pGame->m_ptrVertexArray->AddLayout(vLayout);
+    m_ptrVertexArray->AddLayout(vLayout);
+    m_bLoaded = true;
 }

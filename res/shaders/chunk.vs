@@ -15,6 +15,7 @@ const int uv_indicecs[12] = int[12](
 );
 
 out vec2 tex_Coord;
+out vec3 voxel_color;
 out float randomNum;
 
 uniform mat4 model;
@@ -25,10 +26,17 @@ float rand(vec2 co){
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+vec3 hash31(float p) {
+    vec3 p3 = fract(vec3(p * 21.2) * vec3(0.1031, 0.1030, 0.0973));
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xxy + p3.yzz) * p3.zyx) + 0.05;
+}
+
 void main()
 {
     int uv_index = gl_VertexID % 6 + (face_id & 1) * 6;
     tex_Coord = uv_coords[uv_indicecs[uv_index]];
     randomNum = rand(vec2(aPos.x, aPos.z));
+    voxel_color = hash31(voxel_id);
     gl_Position = project * view * model * vec4(aPos, 1.0);
 }

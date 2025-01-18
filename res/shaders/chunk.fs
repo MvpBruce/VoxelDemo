@@ -1,15 +1,23 @@
 #version 330 core
 
-out vec4 fragmentColor;
+layout (location = 0) out vec4 fragmentColor;
+
+const vec3 gamma = vec3(2.2);
+const vec3 inv_gamma = 1 / gamma;
 
 in vec2 tex_Coord;
 in float randomNum;
+in vec3 voxel_color;
 
-uniform sampler2D texture;
+uniform sampler2D texture1;
 //uniform sampler2D texture2;
 void main()
 {
-    vec3 texCol = texture(texture, tex_Coord).rgb;\
-    fragmentColor = vec4(texCol, 1.0);
+    vec3 tex_col = texture(texture1, tex_Coord).rgb;
+    //tex_col = pow(tex_col, gamma);
+    //tex_col.rgb *= voxel_color;
+    //tex_col = pow(tex_col, inv_gamma);
+    //texCol = texCol * randomNum;
+    fragmentColor = vec4(tex_col, 1.0);
    // fragmentColor = vec4(vec3(1.0, randomNum, randomNum), 1.0);
 }

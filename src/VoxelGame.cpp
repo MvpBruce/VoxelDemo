@@ -69,6 +69,7 @@ bool VoxelGame::InitGLW()
     //glfwSetMouseButtonCallback(m_pGLFWwindow, VoxelGame::mouseButtonCallback);
     glfwSetScrollCallback(m_pGLFWwindow, VoxelGame::mouseScrollCallback);
     glfwSetInputMode(m_pGLFWwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //GLFW_CURSOR_NORMAL //GLFW_CURSOR_DISABLED
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -79,6 +80,7 @@ bool VoxelGame::InitGLW()
     }
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -96,13 +98,10 @@ void VoxelGame::InitGame()
     if (!m_ptrTexture)
         m_ptrTexture = std::make_shared<Texture>();
 
-    m_ptrTexture->LoadTexture("res/textures/test.png");
-
-    m_ptrVertexBuffer = std::make_shared<VertexBuffer>();
-    m_ptrVertexArray = std::make_shared<VertexArray>();
+    m_ptrTexture->LoadTexture("res/textures/container.jpg");
     
     if (!m_ptrWorld)
-        m_ptrWorld = std::make_shared<World>(this);
+        m_ptrWorld = std::make_shared<World>();
 
     Shader::GetInstance().SetMatrix("project", s_ptrCamera->GetProjectMatrix());
 }
@@ -135,9 +134,6 @@ void VoxelGame::Render()
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    //m_ptrVertexArray->Bind();
-    //m_ptrTexture->Bind();
     Shader::GetInstance().Use();
     s_ptrCamera->Update();
     Shader::GetInstance().SetMatrix("view", s_ptrCamera->GetViewMatrix());
@@ -162,7 +158,6 @@ void VoxelGame::mouseCallback(GLFWwindow *window, double xpos, double ypos)
     float fPosX = static_cast<float>(xpos);
     float fPosY = static_cast<float>(ypos);
     
-
     float fOffsetX = fPosX - m_fLastX;
     float fOffsetY = fPosY - m_fLastY;
 

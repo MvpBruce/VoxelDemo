@@ -21,6 +21,7 @@ void VertexBuffer::AttachData(void* pData, unsigned int nSize)
 VertexBuffer::~VertexBuffer()
 {
     Unbind();
+    glDeleteBuffers(1, &m_nRenderID);
 }
 
 void VertexBuffer::Bind()

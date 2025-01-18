@@ -14,6 +14,7 @@ VertexArray::VertexArray(VertexBufferLayout &vecLayout)
 VertexArray::~VertexArray()
 {
     Unbind();
+    glDeleteVertexArrays(1, &m_nRenderID);
 }
 
 void VertexArray::AddLayout(VertexBufferLayout &vecLayout)

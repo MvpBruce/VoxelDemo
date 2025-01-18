@@ -4,6 +4,8 @@
 
 class VoxelGame;
 class World;
+class VertexArray;
+class VertexBuffer;
 class Chunk
 {
 private:
@@ -24,11 +26,14 @@ private:
     std::vector<VertexData> m_vVertices;
     glm::vec3 m_vPosition;
     glm::mat4 m_matModel;
-    VoxelGame* m_pGame;
+    //VoxelGame* m_pGame;
     World* m_pWorld;
+    bool m_bLoaded;
+    std::shared_ptr<VertexArray> m_ptrVertexArray;
+    std::shared_ptr<VertexBuffer> m_ptrVertexBuffer;
     
 public:
-    Chunk(VoxelGame* pGame, glm::vec3 vPosition, World* pWorld);
+    Chunk(/*VoxelGame* pGame, */glm::vec3 vPosition, World* pWorld);
     ~Chunk();
  
     glm::mat4& getModelMatrix();

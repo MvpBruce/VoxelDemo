@@ -28,10 +28,6 @@ private:
     static std::shared_ptr<Camera> s_ptrCamera;
 
 public:
-    std::shared_ptr<VertexArray> m_ptrVertexArray;
-    std::shared_ptr<VertexBuffer> m_ptrVertexBuffer;
-
-public:
     VoxelGame(/* args */);
     ~VoxelGame();
 

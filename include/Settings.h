@@ -39,15 +39,14 @@ const glm::vec3 RIGHT = glm::vec3(1.0f, 0.0f, 0.0f);
 const glm::vec3 UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
 //World
-const unsigned int WORLD_W = 2;
-const unsigned int WORLD_D = 2;
-const unsigned int WORLD_H = 1;
+const unsigned int WORLD_W = 4;
+const unsigned int WORLD_D = 4;
+const unsigned int WORLD_H = 8;
 const unsigned int WORLD_AREA = WORLD_W * WORLD_D;
 const unsigned int WORLD_VOL = WORLD_AREA * WORLD_H;
 
-
 //Player
-const glm::vec3 PALYER_POS = glm::vec3(WORLD_W * HALF_CHUNK_SIZE, WORLD_H * CHUNK_SIZE, 1.5f * WORLD_W);
+const glm::vec3 PALYER_POS = glm::vec3(WORLD_W * HALF_CHUNK_SIZE, WORLD_H * CHUNK_SIZE, WORLD_D);
 //const glm::vec3 PALYER_POS = glm::vec3(0, 0, 5.0f);
 const float MOUSE_SENSITIVITY = 0.09f;
 const float PLAYER_SPEED = 20.0f;

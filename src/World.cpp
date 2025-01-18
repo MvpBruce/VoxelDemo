@@ -1,9 +1,8 @@
 #include "World.h"
 #include "Chunk.h"
 #include <iostream>
-#include "VoxelGame.h"
 
-World::World(VoxelGame* pGame): m_pGame(pGame)
+World::World()
 {
     BuildChunks();
 }
@@ -20,9 +19,9 @@ void World::BuildChunks()
         {
             for (int z = 0; z < WORLD_D; z++)
             {
-                unsigned int nWorldChunkIndex = x + WORLD_W * z + WORLD_AREA * y;
+                unsigned int nWorldChunkIndex = x + WORLD_D * z + WORLD_AREA * y;
                 //std::cout << "Chunk index: " << nWorldChunkIndex << std::endl;
-                std::shared_ptr<Chunk> pChunk = std::make_shared<Chunk>(m_pGame, glm::vec3(x, y, z), this);
+                std::shared_ptr<Chunk> pChunk = std::make_shared<Chunk>(glm::vec3(x, y, z), this);
                 m_mapChunks.emplace(nWorldChunkIndex, std::move(pChunk));
             }
         }
