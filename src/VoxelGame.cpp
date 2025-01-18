@@ -85,7 +85,6 @@ bool VoxelGame::InitGLW()
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     std::cout << glGetString(GL_VERSION) << std::endl;
-
     return true;
 }
 
@@ -103,6 +102,7 @@ void VoxelGame::InitGame()
     if (!m_ptrWorld)
         m_ptrWorld = std::make_shared<World>();
 
+    m_ptrWorld->BuildChunkMesh();
     Shader::GetInstance().SetMatrix("project", s_ptrCamera->GetProjectMatrix());
 }
 
@@ -149,8 +149,6 @@ void VoxelGame::Update()
     float fCurTime = static_cast<float>(glfwGetTime());
     m_fDeltaTime = fCurTime - m_fLastTime;
     m_fLastTime = fCurTime;
-
-    m_ptrWorld->BuildChunkMesh();
 }
 
 void VoxelGame::mouseCallback(GLFWwindow *window, double xpos, double ypos)
