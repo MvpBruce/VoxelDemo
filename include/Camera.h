@@ -36,8 +36,10 @@ public:
 
     glm::mat4& GetViewMatrix();
     glm::mat4& GetProjectMatrix();
-    void Update();
+    glm::vec3& GetPosition();
+    glm::vec3& GetDirection();
 
+    void Update();
     void RotatePitch(float fDeltaY);
     void RotateYaw(float fDeltaX);
     void ProcessKeyBoard(Direction dir, float fDelta);
@@ -49,6 +51,9 @@ private:
     void UpdateVectors();
     void UpdateViewMatrix();
 };
+
+Camera* GetCamera(int nIndex = 0);
+
 
 
 

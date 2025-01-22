@@ -23,28 +23,32 @@ private:
     };
 
     unsigned int* m_pVoxels;
-    std::vector<VertexData> m_vVertices;
+    unsigned int* m_pVertices;
+    unsigned int m_nVertaxCount;
     glm::vec3 m_vPosition;
     glm::mat4 m_matModel;
-    //VoxelGame* m_pGame;
     World* m_pWorld;
     bool m_bLoaded;
     std::shared_ptr<VertexArray> m_ptrVertexArray;
     std::shared_ptr<VertexBuffer> m_ptrVertexBuffer;
     
 public:
-    Chunk(/*VoxelGame* pGame, */glm::vec3 vPosition, World* pWorld);
+    Chunk(glm::vec3 vPosition, World* pWorld);
     ~Chunk();
  
+    void Render();
+    void BuildChunkMesh();
+    int GetChunkId(unsigned int nIndex);
+    void SetVoxelIdByIndex(unsigned int nIndex, unsigned int nId);
+    
+private:
+    void BuildVoxels();
+    bool IsEmpty(glm::vec3 vLocal, glm::vec3 vWorld);
+    void PrepareData();
+    void AddVertices(VertexData& v0, VertexData& v1, VertexData& v2);
+    int GetIndexInWorld(glm::vec3 vWorld);
     glm::mat4& getModelMatrix();
     unsigned int* GetData();
     unsigned int GetSize();
     unsigned int GetCount();
-    bool IsEmpty(glm::vec3 vLocal, glm::vec3 vWorld);
-    void Render();
-    void BuildChunkMesh();
-    void BuildVoxels();
-    void PrepareData();
-    int GetIndexInWorld(glm::vec3 vWorld);
-    int GetChunkValue(unsigned int nIndex);
 };

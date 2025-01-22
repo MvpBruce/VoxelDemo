@@ -6,15 +6,16 @@
 #include <iostream>
 #include "VertexBuffer.h"
 #include "VertexArray.h"
+#include "VoxelHandler.h"
 
 float VoxelGame::m_fLastX = SCR_WIDTH / 2;
 float VoxelGame::m_fLastY = SCR_HEIGHT / 2;
 
-std::shared_ptr<Camera> VoxelGame::s_ptrCamera = nullptr;
+std::shared_ptr<VoxelHandler> g_ptrVoxelHandler;
 
 VoxelGame::VoxelGame():
 m_fLastTime(0.0f), m_fDeltaTime(0.0f), 
-m_ptrTexture(nullptr), m_ptrWorld(nullptr)
+m_ptrTexture(nullptr), m_ptrWorld(nullptr), m_pCamare(nullptr)
 {
     InitGLW();
     InitGame();
@@ -66,9 +67,9 @@ bool VoxelGame::InitGLW()
     glfwMakeContextCurrent(m_pGLFWwindow);
     glfwSetFramebufferSizeCallback(m_pGLFWwindow, VoxelGame::framebuffer_size_callback);
     glfwSetCursorPosCallback(m_pGLFWwindow, VoxelGame::mouseCallback);
-    //glfwSetMouseButtonCallback(m_pGLFWwindow, VoxelGame::mouseButtonCallback);
+    glfwSetMouseButtonCallback(m_pGLFWwindow, VoxelGame::mouseButtonCallback);
     glfwSetScrollCallback(m_pGLFWwindow, VoxelGame::mouseScrollCallback);
-    glfwSetInputMode(m_pGLFWwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(m_pGLFWwindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     //GLFW_CURSOR_NORMAL //GLFW_CURSOR_DISABLED
 
     // glad: load all OpenGL function pointers
@@ -85,12 +86,13 @@ bool VoxelGame::InitGLW()
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     std::cout << glGetString(GL_VERSION) << std::endl;
+
     return true;
 }
 
 void VoxelGame::InitGame()
 {
-    s_ptrCamera = std::make_shared<Camera>();
+    m_pCamare = GetCamera();
     Shader::GetInstance().Load("res/shaders/chunk.vs", "res/shaders/chunk.fs");
     Shader::GetInstance().Use();
 
@@ -103,7 +105,10 @@ void VoxelGame::InitGame()
         m_ptrWorld = std::make_shared<World>();
 
     m_ptrWorld->BuildChunkMesh();
-    Shader::GetInstance().SetMatrix("project", s_ptrCamera->GetProjectMatrix());
+
+    g_ptrVoxelHandler = std::make_shared<VoxelHandler>(m_ptrWorld.get());
+
+    Shader::GetInstance().SetMatrix("project", m_pCamare->GetProjectMatrix());
 }
 
 void VoxelGame::Handle_events()
@@ -112,22 +117,29 @@ void VoxelGame::Handle_events()
         glfwSetWindowShouldClose(m_pGLFWwindow, true);
 
     if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_W) == GLFW_PRESS)
-        s_ptrCamera->ProcessKeyBoard(Direction::Forward, m_fDeltaTime);
+        m_pCamare->ProcessKeyBoard(Direction::Forward, m_fDeltaTime);
 
     if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_S) == GLFW_PRESS)
-        s_ptrCamera->ProcessKeyBoard(Direction::Backward, m_fDeltaTime);
+        m_pCamare->ProcessKeyBoard(Direction::Backward, m_fDeltaTime);
     
     if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_A) == GLFW_PRESS)
-        s_ptrCamera->ProcessKeyBoard(Direction::Left, m_fDeltaTime);
+        m_pCamare->ProcessKeyBoard(Direction::Left, m_fDeltaTime);
 
     if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_D) == GLFW_PRESS)
-        s_ptrCamera->ProcessKeyBoard(Direction::Right, m_fDeltaTime);
+        m_pCamare->ProcessKeyBoard(Direction::Right, m_fDeltaTime);
     
     if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_Q) == GLFW_PRESS)
-        s_ptrCamera->ProcessKeyBoard(Direction::Up, m_fDeltaTime);
+        m_pCamare->ProcessKeyBoard(Direction::Up, m_fDeltaTime);
     
     if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_E) == GLFW_PRESS)
-        s_ptrCamera->ProcessKeyBoard(Direction::Down, m_fDeltaTime);
+        m_pCamare->ProcessKeyBoard(Direction::Down, m_fDeltaTime);
+
+    if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_R) == GLFW_PRESS)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_F) == GLFW_PRESS)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_V) == GLFW_PRESS)
+        glEnable(GL_CULL_FACE);
 }
 
 void VoxelGame::Render()
@@ -135,8 +147,7 @@ void VoxelGame::Render()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     Shader::GetInstance().Use();
-    s_ptrCamera->Update();
-    Shader::GetInstance().SetMatrix("view", s_ptrCamera->GetViewMatrix());
+    Shader::GetInstance().SetMatrix("view", m_pCamare->GetViewMatrix());
     m_ptrWorld->Render();
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
     // -------------------------------------------------------------------------------
@@ -149,6 +160,8 @@ void VoxelGame::Update()
     float fCurTime = static_cast<float>(glfwGetTime());
     m_fDeltaTime = fCurTime - m_fLastTime;
     m_fLastTime = fCurTime;
+    m_pCamare->Update();
+    g_ptrVoxelHandler->RayTrace();
 }
 
 void VoxelGame::mouseCallback(GLFWwindow *window, double xpos, double ypos)
@@ -162,12 +175,12 @@ void VoxelGame::mouseCallback(GLFWwindow *window, double xpos, double ypos)
     m_fLastX = fPosX;
     m_fLastY = fPosY;
     
-    s_ptrCamera->ProcessMouseMovement(fOffsetX, fOffsetY);
+    GetCamera()->ProcessMouseMovement(fOffsetX, fOffsetY);
 }
 
 void VoxelGame::mouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 {
-    s_ptrCamera->ProcessMouseWheelScroll(xoffset, yoffset);
+    GetCamera()->ProcessMouseWheelScroll(xoffset, yoffset);
 }
 
 void VoxelGame::framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -175,11 +188,11 @@ void VoxelGame::framebuffer_size_callback(GLFWwindow *window, int width, int hei
     glViewport(0, 0, width, height);
 }
 
- // static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-    // {
-    //     if (button == GLFW_MOUSE_BUTTON_LEFT)
-    //     {
-    //         if (action == GLFW_RELEASE)
-    //             bFirstMove = true;
-    //     }
-    // }
+void VoxelGame::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        if (action == GLFW_PRESS)
+            g_ptrVoxelHandler->MouseLButtonDown();   
+    }
+}

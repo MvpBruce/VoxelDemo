@@ -51,4 +51,6 @@ void World::BuildChunkMesh()
     {
         it.second->BuildChunkMesh();
     }
+
+    std::cout << "Finished build chunk meshes" << std::endl;
 }

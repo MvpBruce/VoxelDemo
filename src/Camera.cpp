@@ -1,4 +1,10 @@
 #include "Camera.h"
+Camera camera;
+
+Camera* GetCamera(int nIndex)
+{
+    return &camera;
+}
 
 Camera::Camera(glm::vec3 vPosition, float fYaw, float fPitch)
 : m_vPos(vPosition), m_fYaw(fYaw), m_fPitch(fPitch),
@@ -19,6 +25,16 @@ glm::mat4 &Camera::GetViewMatrix()
 glm::mat4& Camera::GetProjectMatrix()
 {
     return m_matProject;
+}
+
+glm::vec3 &Camera::GetPosition()
+{
+    return m_vPos;
+}
+
+glm::vec3 &Camera::GetDirection()
+{
+    return m_vForward;
 }
 
 void Camera::Update()
