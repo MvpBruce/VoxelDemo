@@ -7,6 +7,7 @@
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "VoxelHandler.h"
+#include "ShaderManager.h"
 
 float VoxelGame::m_fLastX = SCR_WIDTH / 2;
 float VoxelGame::m_fLastY = SCR_HEIGHT / 2;
@@ -93,9 +94,8 @@ bool VoxelGame::InitGLW()
 void VoxelGame::InitGame()
 {
     m_pCamare = GetCamera();
-    Shader::GetInstance().Load("res/shaders/chunk.vs", "res/shaders/chunk.fs");
-    Shader::GetInstance().Use();
-
+    ShaderManager::GetInstance().CreateShader("chunk")->Use();
+    
     if (!m_ptrTexture)
         m_ptrTexture = std::make_shared<Texture>();
 
@@ -105,10 +105,8 @@ void VoxelGame::InitGame()
         m_ptrWorld = std::make_shared<World>();
 
     m_ptrWorld->BuildChunkMesh();
-
     g_ptrVoxelHandler = std::make_shared<VoxelHandler>(m_ptrWorld.get());
-
-    Shader::GetInstance().SetMatrix("project", m_pCamare->GetProjectMatrix());
+    ShaderManager::GetInstance().GetShader("chunk")->SetMatrix("project", m_pCamare->GetProjectMatrix());
 }
 
 void VoxelGame::Handle_events()
@@ -146,8 +144,8 @@ void VoxelGame::Render()
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    Shader::GetInstance().Use();
-    Shader::GetInstance().SetMatrix("view", m_pCamare->GetViewMatrix());
+    ShaderManager::GetInstance().GetShader("chunk")->Use();
+    ShaderManager::GetInstance().GetShader("chunk")->SetMatrix("view", m_pCamare->GetViewMatrix());
     m_ptrWorld->Render();
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
     // -------------------------------------------------------------------------------
@@ -194,5 +192,10 @@ void VoxelGame::mouseButtonCallback(GLFWwindow* window, int button, int action, 
     {
         if (action == GLFW_PRESS)
             g_ptrVoxelHandler->MouseLButtonDown();   
+    }
+    else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+    {
+        if (action == GLFW_PRESS)
+            g_ptrVoxelHandler->MouseRbuttonDown();
     }
 }

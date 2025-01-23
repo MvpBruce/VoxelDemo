@@ -40,6 +40,8 @@ public:
     void BuildChunkMesh();
     int GetChunkId(unsigned int nIndex);
     void SetVoxelIdByIndex(unsigned int nIndex, unsigned int nId);
+    //Get relative pos in world
+    glm::vec3& GetRelPosInWorld();
     
 private:
     void BuildVoxels();

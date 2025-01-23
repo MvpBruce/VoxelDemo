@@ -19,6 +19,7 @@ void VoxelHandler::Active()
 
 void VoxelHandler::Deactive()
 {
+    
 }
 
 bool VoxelHandler::MouseLButtonDown()
@@ -29,6 +30,7 @@ bool VoxelHandler::MouseLButtonDown()
 
 bool VoxelHandler::MouseRbuttonDown()
 {
+    AddVoxel();
     return false;
 }
 
@@ -54,11 +56,32 @@ bool VoxelHandler::RayTrace()
     if (dz != 0) tDeltaZ = fmin(dz / (vEnd.z - vStart.z), 10000000.0f); else tDeltaZ = 10000000.0f;
     if (dz > 0) tMaxZ = tDeltaZ * (1.0 - glm::fract(vStart.z)); else tMaxZ = tDeltaZ * glm::fract(vStart.z);
 
+    m_vNormal = glm::ivec3(0);
+    Reset();
+
+    //x=0, y=1, z=2
+    int nDir = -1;
     while (true) 
     {
         if (GetChunkByPos(vCurPos))
         {
             m_vCurrentPos = vCurPos;
+            switch (nDir)
+            {
+            case 0:
+                m_vNormal.x = -dx;
+                break;
+            case 1:
+                m_vNormal.y = -dy;
+                break;
+            case 2:
+                m_vNormal.z = -dz;
+                break;
+            default:
+                break;
+            }
+
+            //std::cout << "detected: Pos:[" << m_vCurrentPos.x << "," << m_vCurrentPos.y << "," << m_vCurrentPos.z << "], Voxel index: " << m_nCurVoxelIndex << std::endl;
             return true;
         }
 
@@ -67,11 +90,13 @@ bool VoxelHandler::RayTrace()
             {
                 vCurPos.x += dx;
                 tMaxX += tDeltaX;
+                nDir = 0;
             } 
             else 
             {
                 vCurPos.z += dz;
                 tMaxZ += tDeltaZ;
+                nDir = 2;
             }
         } 
         else 
@@ -80,11 +105,13 @@ bool VoxelHandler::RayTrace()
             {
                 vCurPos.y += dy;
                 tMaxY += tDeltaY;
+                nDir = 1;
             } 
             else
             {
                 vCurPos.z += dz;
                 tMaxZ += tDeltaZ;
+                nDir = 2;
             }
         }
 
@@ -97,13 +124,6 @@ bool VoxelHandler::RayTrace()
 
 bool VoxelHandler::GetChunkByPos(glm::ivec3 &vWorldPos)
 {
-    //Check world pos
-    // if (vWorldPos.x < 0 || vWorldPos.x >= CHUNK_SIZE * WORLD_W || vWorldPos.y < 0
-    //     || vWorldPos.y >= WORLD_H * CHUNK_SIZE || vWorldPos.z < 0 || vWorldPos.z >= CHUNK_SIZE * WORLD_D)
-    // {
-    //     return false;
-    // }
-    
     //Get pos in world index
     glm::ivec3 vChunkPos(vWorldPos / (int)CHUNK_SIZE);
     if (vChunkPos.x < 0 || vChunkPos.x >= WORLD_W ||  vChunkPos.y < 0 || vChunkPos.y >= WORLD_H || 
@@ -124,12 +144,14 @@ bool VoxelHandler::GetChunkByPos(glm::ivec3 &vWorldPos)
     if (nVoexlIndex < 0)
         return false;
 
+
+    m_pChunk = pChunk;
+    m_nCurVoxelIndex = nVoexlIndex;
+
     int nVoxelId = pChunk->GetChunkId(nVoexlIndex);
     if (nVoxelId == 0)
         return false;
     
-    m_pChunk = pChunk;
-    m_nCurVoxelIndex = nVoexlIndex;
     m_nCurVoxelId = nVoxelId;
     return true;
 }
@@ -141,12 +163,33 @@ void VoxelHandler::RemoveVoxel()
     {
         //Set 0 to delete
         m_pChunk->SetVoxelIdByIndex(m_nCurVoxelIndex, 0);
-        std::cout << "To be deleted: " << m_nCurVoxelIndex << std::endl;
+        glm::vec3& vPos = m_pChunk->GetRelPosInWorld();
+        //std::cout << "Deleted: Pos:[" << vPos.x << "," << vPos.y << "," << vPos.z << "], Voxel index: " << m_nCurVoxelIndex << std::endl;
         
         //Rebuild chunk mesh
         m_pChunk->BuildChunkMesh();
-        m_pChunk = nullptr;
-        m_nCurVoxelId = 0;
-        m_nCurVoxelIndex = -1;
+        Reset();
     }
+}
+
+void VoxelHandler::AddVoxel()
+{
+    if (m_nCurVoxelId)
+    {
+        glm::ivec3 vPos = m_vCurrentPos + m_vNormal;
+        //Empty place
+        if (!GetChunkByPos(vPos) && m_pChunk && m_nCurVoxelIndex != -1)
+        {
+            m_pChunk->SetVoxelIdByIndex(m_nCurVoxelIndex, 1);
+            m_pChunk->BuildChunkMesh();
+            Reset();
+        }
+    }
+}
+
+void VoxelHandler::Reset()
+{
+    m_pChunk = nullptr;
+    m_nCurVoxelIndex = -1;
+    m_nCurVoxelId = 0;
 }

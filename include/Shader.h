@@ -9,21 +9,21 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <unordered_map>
 
 class Shader
 {
 public:
-    static Shader& GetInstance()
+    Shader(const char* pszName)
     {
-        static Shader shader;
-        return shader;
+        Load(pszName);
     }
 
-    void Load(const char* pszVertex, const char* pszFragment)
+    void Load(const char* pszName)
     {
-        std::string vs = ReadShader(pszVertex);
-        std::string fs = ReadShader(pszFragment);
+        std::string shaderPath = std::string("res/shaders/") + pszName + ".vs";
+        std::string vs = ReadShader(shaderPath.c_str());
+        shaderPath = std::string("res/shaders/") + pszName + ".fs";
+        std::string fs = ReadShader(shaderPath.c_str());
         const char* pszVS = vs.c_str();
         const char* pszFS = fs.c_str();
         unsigned int nID = glCreateProgram();
@@ -70,7 +70,6 @@ public:
     }
 
 private:
-    Shader() = default;
     Shader(const Shader&) = delete;
     Shader& operator=(const Shader&) = delete;
     std::string ReadShader(const char* pFile)
@@ -102,7 +101,6 @@ private:
 
 private:
     unsigned int m_nID;
-    std::unordered_map<const char*, unsigned int> m_mapShaders;
 };
 
 #endif

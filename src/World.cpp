@@ -21,8 +21,7 @@ void World::BuildChunks()
             {
                 unsigned int nWorldChunkIndex = x + WORLD_D * z + WORLD_AREA * y;
                 //std::cout << "Chunk index: " << nWorldChunkIndex << std::endl;
-                std::shared_ptr<Chunk> pChunk = std::make_shared<Chunk>(glm::vec3(x, y, z), this);
-                m_mapChunks.emplace(nWorldChunkIndex, std::move(pChunk));
+                m_mapChunks.emplace(nWorldChunkIndex, std::make_shared<Chunk>(glm::vec3(x, y, z), this));
             }
         }
     }
@@ -52,5 +51,5 @@ void World::BuildChunkMesh()
         it.second->BuildChunkMesh();
     }
 
-    std::cout << "Finished build chunk meshes" << std::endl;
+    std::cout << "Finished buildding chunk meshes" << std::endl;
 }

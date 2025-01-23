@@ -4,7 +4,6 @@
 class Texture;
 class World;
 class Camera;
-class Shader;
 class VertexArray;
 class VertexBuffer;
 
@@ -14,7 +13,6 @@ private:
     GLFWwindow* m_pGLFWwindow;
     std::shared_ptr<Texture> m_ptrTexture;
     std::shared_ptr<World> m_ptrWorld;
-
 
     glm::mat4 m_matModel;
     glm::mat4 m_matView;

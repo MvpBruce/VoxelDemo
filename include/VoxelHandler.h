@@ -21,6 +21,8 @@ public:
 private:
     bool GetChunkByPos(glm::ivec3& vWorldPos);
     void RemoveVoxel();
+    void AddVoxel();
+    void Reset();
 
 private:
     glm::ivec3 m_vCurrentPos;
@@ -28,4 +30,5 @@ private:
     int m_nCurVoxelId;
     int m_nCurVoxelIndex;
     Chunk* m_pChunk;
+    glm::ivec3 m_vNormal;
 };

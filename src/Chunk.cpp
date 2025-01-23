@@ -7,6 +7,7 @@
 #include "VertexBufferLayout.h"
 #include "VertexArray.h"
 #include "World.h"
+#include "ShaderManager.h"
 
 Chunk::Chunk(glm::vec3 vPosition, World* pWorld): m_vPosition(vPosition),
 m_pWorld(pWorld), m_bLoaded(false), m_nVertaxCount(0)
@@ -79,6 +80,11 @@ void Chunk::SetVoxelIdByIndex(unsigned int nIndex, unsigned int nId)
     m_pVoxels[nIndex] = nId;
 }
 
+glm::vec3 &Chunk::GetRelPosInWorld()
+{
+    return m_vPosition;
+}
+
 void Chunk::AddVertices(VertexData &v0, VertexData &v1, VertexData &v2)
 {
     if (!m_pVertices)
@@ -117,7 +123,7 @@ void Chunk::Render()
 {
     PrepareData();
     m_ptrVertexArray->Bind();
-    Shader::GetInstance().SetMatrix("model", m_matModel);  
+    ShaderManager::GetInstance().GetShader("chunk")->SetMatrix("model", m_matModel);  
     CALLERROR(glDrawArrays(GL_TRIANGLES, 0, GetCount()));
 }
 
@@ -236,7 +242,7 @@ void Chunk::BuildVoxels()
             {
                 wy = y + vPos.y;
                 //m_pVoxels[x + CHUNK_SIZE * z + CHUNK_AREA * y] = 1;
-                m_pVoxels[x + CHUNK_SIZE * z + CHUNK_AREA * y] = wy + 1;
+                m_pVoxels[x + CHUNK_SIZE * z + CHUNK_AREA * y] = 1 + wy;
                 //std::cout << wy + 1 << std::endl;
             }
         }
