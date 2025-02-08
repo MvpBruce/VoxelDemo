@@ -24,7 +24,7 @@ private:
 
     unsigned int* m_pVoxels;
     unsigned int* m_pVertices;
-    unsigned int m_nVertaxCount;
+    unsigned int m_nVertexCount;
     glm::vec3 m_vPosition;
     glm::mat4 m_matModel;
     World* m_pWorld;

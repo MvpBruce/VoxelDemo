@@ -9,8 +9,9 @@ ShaderManager &ShaderManager::GetInstance()
 
 Shader* ShaderManager::CreateShader(const char *pszShaderName)
 {
-    m_mapShader.emplace(pszShaderName, std::make_shared<Shader>(pszShaderName));
-    return m_mapShader[pszShaderName].get();
+    std::shared_ptr<Shader> pShader = std::make_shared<Shader>(pszShaderName);
+    m_mapShader.emplace(pszShaderName, pShader);
+    return pShader.get();
 }
 
 Shader *ShaderManager::GetShader(const char *pszShaderName)

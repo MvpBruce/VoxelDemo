@@ -82,7 +82,8 @@ bool VoxelGame::InitGLW()
     }
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
     //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -94,12 +95,15 @@ bool VoxelGame::InitGLW()
 void VoxelGame::InitGame()
 {
     m_pCamare = GetCamera();
+    ShaderManager::GetInstance().CreateShader("cube")->Use();
+    ShaderManager::GetInstance().GetShader("cube")->SetMatrix("project", m_pCamare->GetProjectMatrix());
+
     ShaderManager::GetInstance().CreateShader("chunk")->Use();
     
     if (!m_ptrTexture)
         m_ptrTexture = std::make_shared<Texture>();
 
-    m_ptrTexture->LoadTexture("res/textures/container.jpg");
+    m_ptrTexture->LoadTexture("res/textures/frame.png");
     
     if (!m_ptrWorld)
         m_ptrWorld = std::make_shared<World>();
@@ -144,9 +148,15 @@ void VoxelGame::Render()
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    ShaderManager::GetInstance().GetShader("cube")->Use();
+    ShaderManager::GetInstance().GetShader("cube")->SetMatrix("view", m_pCamare->GetViewMatrix());
+    
     ShaderManager::GetInstance().GetShader("chunk")->Use();
     ShaderManager::GetInstance().GetShader("chunk")->SetMatrix("view", m_pCamare->GetViewMatrix());
+
     m_ptrWorld->Render();
+    g_ptrVoxelHandler->Render();
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
     // -------------------------------------------------------------------------------
     glfwSwapBuffers(m_pGLFWwindow);

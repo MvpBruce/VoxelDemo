@@ -6,7 +6,6 @@ const vec3 gamma = vec3(2.2);
 const vec3 inv_gamma = 1 / gamma;
 
 in vec2 tex_Coord;
-in float randomNum;
 in vec3 voxel_color;
 
 uniform sampler2D texture1;
@@ -14,10 +13,8 @@ uniform sampler2D texture1;
 void main()
 {
     vec3 tex_col = texture(texture1, tex_Coord).rgb;
-    //tex_col = pow(tex_col, gamma);
-    //tex_col.rgb *= voxel_color;
-    //tex_col = pow(tex_col, inv_gamma);
-    //texCol = texCol * randomNum;
+    tex_col = pow(tex_col, gamma);
+    tex_col.rgb *= voxel_color;
+    tex_col = pow(tex_col, inv_gamma);
     fragmentColor = vec4(tex_col, 1.0);
-   // fragmentColor = vec4(vec3(1.0, randomNum, randomNum), 1.0);
 }

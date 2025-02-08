@@ -23,7 +23,7 @@ const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
 //Chunk
-const unsigned int CHUNK_SIZE = 32;
+const unsigned int CHUNK_SIZE = 2;
 const unsigned int HALF_CHUNK_SIZE = CHUNK_SIZE / 2;
 const unsigned int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
 const unsigned int CHUNK_VOL = CHUNK_AREA * CHUNK_SIZE;
@@ -39,9 +39,9 @@ const glm::vec3 RIGHT = glm::vec3(1.0f, 0.0f, 0.0f);
 const glm::vec3 UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
 //World
-const unsigned int WORLD_W = 2;
-const unsigned int WORLD_D = 2;
-const unsigned int WORLD_H = 1;
+const unsigned int WORLD_W = 4;
+const unsigned int WORLD_D = 4;
+const unsigned int WORLD_H = 2;
 const unsigned int WORLD_AREA = WORLD_W * WORLD_D;
 const unsigned int WORLD_VOL = WORLD_AREA * WORLD_H;
 

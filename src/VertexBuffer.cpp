@@ -12,6 +12,7 @@ VertexBuffer::VertexBuffer(void *pData, unsigned int nSize)
     AttachData(pData, nSize);
 }
 
+//nSize, how many bytes
 void VertexBuffer::AttachData(void* pData, unsigned int nSize)
 {
     CALLERROR(glBindBuffer(GL_ARRAY_BUFFER, m_nRenderID));

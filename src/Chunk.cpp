@@ -10,7 +10,7 @@
 #include "ShaderManager.h"
 
 Chunk::Chunk(glm::vec3 vPosition, World* pWorld): m_vPosition(vPosition),
-m_pWorld(pWorld), m_bLoaded(false), m_nVertaxCount(0)
+m_pWorld(pWorld), m_bLoaded(false), m_nVertexCount(0)
 {
     m_matModel = glm::translate(glm::mat4(1.0f), m_vPosition * (float)CHUNK_SIZE);
     m_pVoxels = new unsigned int[CHUNK_VOL];
@@ -50,12 +50,12 @@ unsigned int *Chunk::GetData()
 
 unsigned int Chunk::GetSize()
 {
-    return m_nVertaxCount * sizeof(VertexData);
+    return m_nVertexCount * sizeof(VertexData);
 }
 
 unsigned int Chunk::GetCount()
 {
-    return m_nVertaxCount;
+    return m_nVertexCount;
 }
 
 int Chunk::GetIndexInWorld(glm::vec3 vWorld)
@@ -67,7 +67,7 @@ int Chunk::GetIndexInWorld(glm::vec3 vWorld)
     if (cx < 0 || cx >= WORLD_W || cy < 0 || cy >= WORLD_H || cz < 0 || cz >= WORLD_D)
         return -1;
 
-    return (int)(cx + cz * WORLD_D + cy * WORLD_AREA);
+    return ((int)cx + (int)(cz * WORLD_D) + (int)(cy * WORLD_AREA));
 }
 
 int Chunk::GetChunkId(unsigned int nIndex)
@@ -90,30 +90,34 @@ void Chunk::AddVertices(VertexData &v0, VertexData &v1, VertexData &v2)
     if (!m_pVertices)
         return;
 
-    memcpy(m_pVertices + m_nVertaxCount * sizeof(VertexData)/sizeof(unsigned int), &v0, sizeof(VertexData));
-    m_nVertaxCount++;
+    memcpy(m_pVertices + m_nVertexCount * sizeof(VertexData)/sizeof(unsigned int), &v0, sizeof(VertexData));
+    m_nVertexCount++;
 
-    memcpy(m_pVertices + m_nVertaxCount * sizeof(VertexData)/sizeof(unsigned int), &v1, sizeof(VertexData));
-    m_nVertaxCount++;
+    memcpy(m_pVertices + m_nVertexCount * sizeof(VertexData)/sizeof(unsigned int), &v1, sizeof(VertexData));
+    m_nVertexCount++;
 
-    memcpy(m_pVertices + m_nVertaxCount * sizeof(VertexData)/sizeof(unsigned int), &v2, sizeof(VertexData));
-    m_nVertaxCount++;
+    memcpy(m_pVertices + m_nVertexCount * sizeof(VertexData)/sizeof(unsigned int), &v2, sizeof(VertexData));
+    m_nVertexCount++;
 }
 
 bool Chunk::IsEmpty(glm::vec3 vLocal, glm::vec3 vWorld)
 {
     int nChunkIndex = GetIndexInWorld(vWorld);
     //Out of boundary or not exist
-    if (nChunkIndex < 0)
+    if (nChunkIndex == -1)
         return true;
 
     Chunk* pChunk = m_pWorld->GetChunkByIndex(nChunkIndex);
     if (!pChunk)
         return true;
 
-    int nVoxelIndex = (int)vLocal.x % CHUNK_SIZE + (int)vLocal.z % CHUNK_AREA + (int)vLocal.y % CHUNK_VOL;
+    //int nVoxelIndex = (int)vLocal.x % CHUNK_SIZE + (int)vLocal.z % CHUNK_AREA + (int)vLocal.y % CHUNK_VOL;
+    int nVoxelIndex = (int)vLocal.x + (int)vLocal.z * CHUNK_SIZE + (int)vLocal.y * CHUNK_AREA;
+    if (nVoxelIndex < 0)
+        return true;
+        
     //Voxel is not empty
-    if (pChunk->GetChunkId(nVoxelIndex) != 0)
+    if (pChunk->GetChunkId(nVoxelIndex))
         return false;
     
     return true;
@@ -131,7 +135,7 @@ void Chunk::BuildChunkMesh()
 {
     m_bLoaded = false;
     memset(m_pVertices, 0, CHUNK_VOL * sizeof(VertexData) * 36 * sizeof(unsigned int));
-    m_nVertaxCount = 0;
+    m_nVertexCount = 0;
     for (int x = 0; x < CHUNK_SIZE; x++)
     {
         for (int z = 0; z < CHUNK_SIZE; z++)
@@ -229,6 +233,8 @@ void Chunk::BuildVoxels()
     memset(m_pVoxels, 0, CHUNK_VOL * sizeof(unsigned int));
     glm::ivec3 vPos = glm::ivec3(m_vPosition) * (int)CHUNK_SIZE;
     int wx = 0, wy = 0, wz = 0, nWorldHeight = 0, nLocalHeight = 0;
+    //1~100
+    unsigned nRand = rand() % 100 + 1;
     for (int x = 0; x < CHUNK_SIZE; x++)
     {   
         wx = x + vPos.x;
@@ -242,7 +248,7 @@ void Chunk::BuildVoxels()
             {
                 wy = y + vPos.y;
                 //m_pVoxels[x + CHUNK_SIZE * z + CHUNK_AREA * y] = 1;
-                m_pVoxels[x + CHUNK_SIZE * z + CHUNK_AREA * y] = 1 + wy;
+                m_pVoxels[x + CHUNK_SIZE * z + CHUNK_AREA * y] = nRand;
                 //std::cout << wy + 1 << std::endl;
             }
         }
