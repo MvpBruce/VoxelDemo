@@ -65,15 +65,16 @@ void VoxelHandler::Deactive()
 
 bool VoxelHandler::MouseLButtonDown()
 {
-    m_nOperatorMode = 1;
-    RemoveVoxel();
+    if (m_nOperatorMode == 1)
+        RemoveVoxel();
+    else
+        AddVoxel();
+    
     return false;
 }
 
 bool VoxelHandler::MouseRbuttonDown()
 {
-    m_nOperatorMode = 0;
-    AddVoxel();
     return false;
 }
 
@@ -100,16 +101,16 @@ bool VoxelHandler::RayTrace()
     if (dz > 0) tMaxZ = tDeltaZ * (1.0 - glm::fract(vStart.z)); else tMaxZ = tDeltaZ * glm::fract(vStart.z);
 
     m_vNormal = glm::ivec3(0);
-    m_vCurrentPos = glm::ivec3(0);
+    m_vCurWroldPos = glm::ivec3(0);
     Reset();
 
     //x=0, y=1, z=2
     int nDir = -1;
     while (true) 
     {
-        if (GetChunkByPos(vCurPos))
+        if (GetChunkByPos(vCurPos) && m_nCurVoxelId)
         {
-            m_vCurrentPos = vCurPos;
+            m_vCurWroldPos = vCurPos;
             switch (nDir)
             {
             case 0:
@@ -125,7 +126,7 @@ bool VoxelHandler::RayTrace()
                 break;
             }
 
-            //std::cout << "detected: Pos:[" << m_vCurrentPos.x << "," << m_vCurrentPos.y << "," << m_vCurrentPos.z << "], Voxel index: " << m_nCurVoxelIndex << std::endl;
+            //std::cout << "detected: Pos:[" << m_vCurWroldPos.x << "," << m_vCurWroldPos.y << "," << m_vCurWroldPos.z << "], Voxel index: " << m_nCurVoxelIndex << std::endl;
             return true;
         }
 
@@ -174,9 +175,9 @@ void VoxelHandler::Render()
     PrepareData();
     glm::ivec3 vTarget;
     if (m_nOperatorMode == 0)
-        vTarget = m_vCurrentPos + m_vNormal;
+        vTarget = m_vCurWroldPos + m_vNormal;
     else
-        vTarget = m_vCurrentPos;
+        vTarget = m_vCurWroldPos;
 
     m_pVA->Bind();
     
@@ -184,10 +185,19 @@ void VoxelHandler::Render()
     ShaderManager::GetInstance().GetShader("cube")->Use();
     ShaderManager::GetInstance().GetShader("cube")->SetMatrix("model", model);
     ShaderManager::GetInstance().GetShader("cube")->SetInt("nOperation", m_nOperatorMode);
-    //ShaderManager::GetInstance().GetShader("cube")->SetInt("u_texture", 0);
     
     //CALLERROR(glDrawElements(GL_TRIANGLES, m_pIB->GetCount(), GL_UNSIGNED_INT, indices));
     CALLERROR(glDrawArrays(GL_TRIANGLES, 0, m_nVertexCount));
+}
+
+void VoxelHandler::SetOperatorMode(int nType)
+{
+    m_nOperatorMode = nType;
+}
+
+int VoxelHandler::GetOperatorMode()
+{
+    return m_nOperatorMode;
 }
 
 bool VoxelHandler::GetChunkByPos(glm::ivec3 &vWorldPos)
@@ -217,12 +227,8 @@ bool VoxelHandler::GetChunkByPos(glm::ivec3 &vWorldPos)
 
     m_pChunk = pChunk;
     m_nCurVoxelIndex = nVoexlIndex;
-
-    int nVoxelId = pChunk->GetChunkId(nVoexlIndex);
-    if (nVoxelId == 0)
-        return false;
-    
-    m_nCurVoxelId = nVoxelId;
+    m_nCurVoxelId = pChunk->GetChunkId(nVoexlIndex);
+    m_vCurLocalPos = vLocal;
     return true;
 }
 
@@ -233,10 +239,11 @@ void VoxelHandler::RemoveVoxel()
     {
         //Set 0 to delete
         m_pChunk->SetVoxelIdByIndex(m_nCurVoxelIndex, 0);
-        //std::cout << "Deleted: Pos:[" << m_vCurrentPos.x << "," << m_vCurrentPos.y << "," << m_vCurrentPos.z << "], Voxel index: " << m_nCurVoxelIndex << std::endl;
+        std::cout << "Deleted: WorldPos:[" << m_vCurWroldPos.x << "," << m_vCurWroldPos.y << "," << m_vCurWroldPos.z << "], Voxel index: " << m_nCurVoxelIndex << std::endl;
         
         //Rebuild chunk mesh
         m_pChunk->BuildChunkMesh();
+        RebuildAdjacentChunks();
         Reset();
     }
 }
@@ -245,9 +252,9 @@ void VoxelHandler::AddVoxel()
 {
     if (m_nCurVoxelId)
     {
-        glm::ivec3 vPos = m_vCurrentPos + m_vNormal;
+        glm::ivec3 vPos = m_vCurWroldPos + m_vNormal;
         //Empty place
-        if (!GetChunkByPos(vPos) && m_pChunk && m_nCurVoxelIndex != -1)
+        if (GetChunkByPos(vPos) && m_nCurVoxelId == 0)
         {
             m_pChunk->SetVoxelIdByIndex(m_nCurVoxelIndex, 1);
             m_pChunk->BuildChunkMesh();
@@ -299,4 +306,83 @@ void VoxelHandler::PrepareData()
     m_pVA->AddLayout(vLayout);
 
     m_bLoaded = true;
+}
+
+void VoxelHandler::RebuildAdjacentChunks()
+{
+    if (!m_pChunk)
+    {
+        std::cout << "Can't rebuild adjacent chunks" << std::endl;
+        return;
+    }
+
+    glm::ivec3 vRebuildPos;
+    
+    if (m_vCurLocalPos.x == 0)
+    {
+        vRebuildPos = m_vCurWroldPos;
+        vRebuildPos.x -= 1;
+        RebuildAdjacentChunk(vRebuildPos);
+    }
+    
+    if (m_vCurLocalPos.x == CHUNK_SIZE - 1)
+    {
+        vRebuildPos = m_vCurWroldPos;
+        vRebuildPos.x += 1;
+        RebuildAdjacentChunk(vRebuildPos);
+    }
+
+    if (m_vCurLocalPos.y == 0)
+    {
+        vRebuildPos = m_vCurWroldPos;
+        vRebuildPos.y -= 1;
+        RebuildAdjacentChunk(vRebuildPos);
+    }
+
+    if (m_vCurLocalPos.y == CHUNK_SIZE - 1)
+    {
+        vRebuildPos = m_vCurWroldPos;
+        vRebuildPos.y += 1;
+        RebuildAdjacentChunk(vRebuildPos);
+    }
+
+    if (m_vCurLocalPos.z == 0)
+    {
+        vRebuildPos = m_vCurWroldPos;
+        vRebuildPos.z -= 1;
+        RebuildAdjacentChunk(vRebuildPos);
+    }
+
+    if (m_vCurLocalPos.z == CHUNK_SIZE - 1)
+    {
+        vRebuildPos = m_vCurWroldPos;
+        vRebuildPos.z += 1;
+        RebuildAdjacentChunk(vRebuildPos);
+    }
+}
+
+int GetIndexInWorld(glm::vec3 vWorld)
+{
+    float cx = vWorld.x / (float)CHUNK_SIZE;
+    float cy = vWorld.y / (float)CHUNK_SIZE;
+    float cz = vWorld.z / (float)CHUNK_SIZE;
+
+    if (cx < 0 || cx >= WORLD_W || cy < 0 || cy >= WORLD_H || cz < 0 || cz >= WORLD_D)
+        return -1;
+
+    return ((int)cx + (int)cz * WORLD_D + (int)cy * WORLD_AREA);
+}
+
+void VoxelHandler::RebuildAdjacentChunk(glm::ivec3& vWorldPos)
+{
+    //get chunk and rebuild
+    int nIndex = GetIndexInWorld(glm::vec3(vWorldPos));
+    if (nIndex == -1)
+        return;
+
+    Chunk* pChunk = m_pWorld->GetChunkByIndex(nIndex);
+    if (!pChunk)
+        return;
+
+    pChunk->BuildChunkMesh();
 }

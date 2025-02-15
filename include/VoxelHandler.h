@@ -23,6 +23,9 @@ public:
     virtual bool RayTrace();
 
     virtual void Render();
+    void SetOperatorMode(int nType);
+    int GetOperatorMode();
+
 
 private:
     bool GetChunkByPos(glm::ivec3& vWorldPos);
@@ -30,9 +33,12 @@ private:
     void AddVoxel();
     void Reset();
     void PrepareData();
+    void RebuildAdjacentChunks();
+    void RebuildAdjacentChunk(glm::ivec3& vWorldPos);
 
 private:
-    glm::ivec3 m_vCurrentPos;
+    glm::ivec3 m_vCurWroldPos;
+    glm::ivec3 m_vCurLocalPos;
     World* m_pWorld;
     int m_nCurVoxelId;
     int m_nCurVoxelIndex;

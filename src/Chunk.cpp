@@ -67,16 +67,22 @@ int Chunk::GetIndexInWorld(glm::vec3 vWorld)
     if (cx < 0 || cx >= WORLD_W || cy < 0 || cy >= WORLD_H || cz < 0 || cz >= WORLD_D)
         return -1;
 
-    return ((int)cx + (int)(cz * WORLD_D) + (int)(cy * WORLD_AREA));
+    return ((int)cx + (int)cz * WORLD_D + (int)cy * WORLD_AREA);
 }
 
 int Chunk::GetChunkId(unsigned int nIndex)
 {
+    if (nIndex >= CHUNK_VOL)
+        std::cout << "[Get]Chunk index: " << nIndex << " is out of boundary!" << std::endl;
+
     return m_pVoxels[nIndex];
 }
 
 void Chunk::SetVoxelIdByIndex(unsigned int nIndex, unsigned int nId)
 {
+    if (nIndex >= CHUNK_VOL)
+        std::cout << "[Set]Chunk index: " << nIndex << " is out of boundary!" << std::endl;
+
     m_pVoxels[nIndex] = nId;
 }
 
@@ -111,8 +117,7 @@ bool Chunk::IsEmpty(glm::vec3 vLocal, glm::vec3 vWorld)
     if (!pChunk)
         return true;
 
-    //int nVoxelIndex = (int)vLocal.x % CHUNK_SIZE + (int)vLocal.z % CHUNK_AREA + (int)vLocal.y % CHUNK_VOL;
-    int nVoxelIndex = (int)vLocal.x + (int)vLocal.z * CHUNK_SIZE + (int)vLocal.y * CHUNK_AREA;
+    int nVoxelIndex = (int)glm::abs(vLocal.x) % CHUNK_SIZE + (int)glm::abs(vLocal.z) % CHUNK_SIZE * CHUNK_SIZE + (int)glm::abs(vLocal.y) % CHUNK_SIZE * CHUNK_AREA;
     if (nVoxelIndex < 0)
         return true;
         

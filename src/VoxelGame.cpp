@@ -82,7 +82,7 @@ bool VoxelGame::InitGLW()
     }
 
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -141,7 +141,16 @@ void VoxelGame::Handle_events()
     if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_F) == GLFW_PRESS)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_V) == GLFW_PRESS)
-        glEnable(GL_CULL_FACE);
+        glfwSetInputMode(m_pGLFWwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_B) == GLFW_PRESS)
+        glfwSetInputMode(m_pGLFWwindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+    if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_T) == GLFW_PRESS)
+        g_ptrVoxelHandler->SetOperatorMode(0);
+
+    if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_G) == GLFW_PRESS)
+        g_ptrVoxelHandler->SetOperatorMode(1);
+    
 }
 
 void VoxelGame::Render()
