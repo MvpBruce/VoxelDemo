@@ -27,20 +27,22 @@ const unsigned int CHUNK_SIZE = 32;
 const unsigned int HALF_CHUNK_SIZE = CHUNK_SIZE / 2;
 const unsigned int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
 const unsigned int CHUNK_VOL = CHUNK_AREA * CHUNK_SIZE;
+const float CHUNK_RADIUS = (float)HALF_CHUNK_SIZE * glm::sqrt(2);
 
 //Camera
 const float ASPECT_RATIO = SCR_WIDTH / SCR_HEIGHT;
 const float V_FOV = glm::radians(50.0f);
+const float H_FOV = glm::radians(50.0f);
 const float Z_NEAR = 0.1f;
-const float Z_FAR = 2000.0f;
+const float Z_FAR = 100.0f;
 const float PITCH_MAX = 89.0f;
 const glm::vec3 FRONT = glm::vec3(0.0f, 0.0f, -1.0f);
 const glm::vec3 RIGHT = glm::vec3(1.0f, 0.0f, 0.0f);
 const glm::vec3 UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
 //World
-const unsigned int WORLD_W = 3;
-const unsigned int WORLD_D = 3;
+const unsigned int WORLD_W = 5;
+const unsigned int WORLD_D = 5;
 const unsigned int WORLD_H = 1;
 const unsigned int WORLD_AREA = WORLD_W * WORLD_D;
 const unsigned int WORLD_VOL = WORLD_AREA * WORLD_H;

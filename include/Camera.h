@@ -14,6 +14,7 @@ enum class Direction
     Down
 };
 
+class Frustum;
 class Camera
 {
 private:
@@ -28,6 +29,7 @@ private:
     float m_fPitch;
     glm::mat4 m_matProject;
     glm::mat4 m_matView;
+    std::shared_ptr<Frustum> m_ptrFrustum;
 
 public:
     Camera(glm::vec3 vPosition = PALYER_POS, float fYaw = -90.0f, float fPitch = 0.0f);
@@ -38,6 +40,8 @@ public:
     glm::mat4& GetProjectMatrix();
     glm::vec3& GetPosition();
     glm::vec3& GetDirection();
+    glm::vec3& GetUp();
+    glm::vec3& GetRight();
 
     void Update();
     void RotatePitch(float fDeltaY);
@@ -46,6 +50,8 @@ public:
     //void ProcessMouseMovement(float offsetX, float offsetY);
     void ProcessMouseMovement(float offsetX, float offsetY);
     void ProcessMouseWheelScroll(float offsetX, float offsetY);
+
+    bool IsInFrustum(glm::vec3& vCenter);
 
 private:
     void UpdateVectors();

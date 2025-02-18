@@ -26,7 +26,9 @@ private:
     unsigned int* m_pVertices;
     unsigned int m_nVertexCount;
     glm::vec3 m_vPosition;
+    glm::vec3 m_vCenter;
     glm::mat4 m_matModel;
+    
     World* m_pWorld;
     bool m_bLoaded;
     std::shared_ptr<VertexArray> m_ptrVertexArray;

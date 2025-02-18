@@ -8,10 +8,12 @@
 #include "VertexArray.h"
 #include "World.h"
 #include "ShaderManager.h"
+#include "Camera.h"
 
 Chunk::Chunk(glm::vec3 vPosition, World* pWorld): m_vPosition(vPosition),
 m_pWorld(pWorld), m_bLoaded(false), m_nVertexCount(0)
 {
+    m_vCenter = (m_vPosition + 0.5f) * (float)CHUNK_SIZE;
     m_matModel = glm::translate(glm::mat4(1.0f), m_vPosition * (float)CHUNK_SIZE);
     m_pVoxels = new unsigned int[CHUNK_VOL];
     
@@ -130,6 +132,11 @@ bool Chunk::IsEmpty(glm::vec3 vLocal, glm::vec3 vWorld)
 
 void Chunk::Render()
 {
+    if (!GetCamera()->IsInFrustum(m_vCenter))
+    {
+        return;
+    }
+    
     PrepareData();
     m_ptrVertexArray->Bind();
     ShaderManager::GetInstance().GetShader("chunk")->SetMatrix("model", m_matModel);  

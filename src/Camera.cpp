@@ -1,4 +1,6 @@
 #include "Camera.h"
+#include "Frustum.h"
+
 Camera camera;
 
 Camera* GetCamera(int nIndex)
@@ -8,7 +10,7 @@ Camera* GetCamera(int nIndex)
 
 Camera::Camera(glm::vec3 vPosition, float fYaw, float fPitch)
 : m_vPos(vPosition), m_fYaw(fYaw), m_fPitch(fPitch),
-m_vForward(FRONT), m_vUp(UP), m_vRight(RIGHT)
+m_vForward(FRONT), m_vUp(UP), m_vRight(RIGHT), m_ptrFrustum(std::make_shared<Frustum>())
 {
     m_matProject = glm::perspective(V_FOV, ASPECT_RATIO, Z_NEAR, Z_FAR);
 }
@@ -35,6 +37,16 @@ glm::vec3 &Camera::GetPosition()
 glm::vec3 &Camera::GetDirection()
 {
     return m_vForward;
+}
+
+glm::vec3 &Camera::GetUp()
+{
+    return m_vUp;
+}
+
+glm::vec3 &Camera::GetRight()
+{
+    return m_vRight;
 }
 
 void Camera::Update()
@@ -84,6 +96,11 @@ void Camera::ProcessKeyBoard(Direction dir, float fDelta)
 void Camera::ProcessMouseWheelScroll(float offsetX, float offsetY)
 {
     ProcessKeyBoard(Direction::Forward, offsetY * MOUSE_SENSITIVITY);
+}
+
+bool Camera::IsInFrustum(glm::vec3 &vCenter)
+{
+    return m_ptrFrustum->IsInside(vCenter);
 }
 
 void Camera::ProcessMouseMovement(float offsetX, float offsetY)
