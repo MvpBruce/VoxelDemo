@@ -16,6 +16,8 @@ const int uv_indicecs[12] = int[12](
 
 out vec2 tex_Coord;
 out vec3 voxel_color;
+flat out int face_id_out;
+flat out int voxel_id_out;
 
 uniform mat4 model;
 uniform mat4 project;
@@ -29,6 +31,7 @@ vec3 hash31(float p) {
 
 void main()
 {
+    face_id_out = face_id;
     int uv_index = gl_VertexID % 6 + (face_id & 1) * 6;
     tex_Coord = uv_coords[uv_indicecs[uv_index]];
     voxel_color = hash31(voxel_id);

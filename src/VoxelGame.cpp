@@ -70,7 +70,7 @@ bool VoxelGame::InitGLW()
     glfwSetCursorPosCallback(m_pGLFWwindow, VoxelGame::mouseCallback);
     glfwSetMouseButtonCallback(m_pGLFWwindow, VoxelGame::mouseButtonCallback);
     glfwSetScrollCallback(m_pGLFWwindow, VoxelGame::mouseScrollCallback);
-    glfwSetInputMode(m_pGLFWwindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(m_pGLFWwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     //GLFW_CURSOR_NORMAL //GLFW_CURSOR_DISABLED
 
     // glad: load all OpenGL function pointers
@@ -102,8 +102,6 @@ void VoxelGame::InitGame()
     
     if (!m_ptrTexture)
         m_ptrTexture = std::make_shared<Texture>();
-
-    m_ptrTexture->LoadTexture("res/textures/frame.png");
     
     if (!m_ptrWorld)
         m_ptrWorld = std::make_shared<World>();
@@ -150,7 +148,6 @@ void VoxelGame::Handle_events()
 
     if(glfwGetKey(m_pGLFWwindow, GLFW_KEY_G) == GLFW_PRESS)
         g_ptrVoxelHandler->SetOperatorMode(1);
-    
 }
 
 void VoxelGame::Render()
@@ -159,10 +156,15 @@ void VoxelGame::Render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     ShaderManager::GetInstance().GetShader("cube")->Use();
+    ShaderManager::GetInstance().GetShader("cube")->SetInt("u_texture", 0);
     ShaderManager::GetInstance().GetShader("cube")->SetMatrix("view", m_pCamare->GetViewMatrix());
+
     
     ShaderManager::GetInstance().GetShader("chunk")->Use();
+    ShaderManager::GetInstance().GetShader("cube")->SetInt("textureArray", 1);
     ShaderManager::GetInstance().GetShader("chunk")->SetMatrix("view", m_pCamare->GetViewMatrix());
+
+    m_ptrTexture->ActiveAndBind();
 
     m_ptrWorld->Render();
     g_ptrVoxelHandler->Render();

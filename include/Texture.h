@@ -4,11 +4,12 @@ class Texture
 {
 private:
     unsigned int m_nTexture;
+    unsigned int m_nTextureArray;
 
 public:
     Texture(/* args */);
     ~Texture();
 
-    bool LoadTexture(const char* pszPath);
-    void Bind();
+    bool LoadTexture(const char* pszPath, bool bIsArray = false);
+    void ActiveAndBind();
 };

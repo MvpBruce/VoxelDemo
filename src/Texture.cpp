@@ -5,8 +5,12 @@
 
 Texture::Texture()
 {
+    stbi_set_flip_vertically_on_load(true);
+
+    //Texture
     glGenTextures(1, &m_nTexture);
-    Bind();
+    CALLERROR(glBindTexture(GL_TEXTURE_2D, m_nTexture));
+    
     //set texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -14,32 +18,52 @@ Texture::Texture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    stbi_set_flip_vertically_on_load(true);
+    LoadTexture("res/textures/frame.png", false);
+
+    //Texture array
+    glGenTextures(1, &m_nTextureArray);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_nTextureArray);
+
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    LoadTexture("res/textures/tex_array_0.png", true);
 }
 
 Texture::~Texture()
 {
 }
 
-bool Texture::LoadTexture(const char *pszPath)
+bool Texture::LoadTexture(const char *pszPath, bool bIsArray/* = false*/)
 {
     int nWidth, nHeight, nChanel;
-    unsigned char* pData = stbi_load(pszPath, &nWidth, &nHeight, &nChanel, 0);
-    if (pData)
+    //Force rgba
+    unsigned char* pData = stbi_load(pszPath, &nWidth, &nHeight, &nChanel, 4);
+    if (!pData)
+        return false;
+
+    if (bIsArray)
     {
-        CALLERROR(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, nWidth, nHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pData));
-        CALLERROR(glGenerateMipmap(GL_TEXTURE_2D));
+        int nLayers = 3 * nHeight / nWidth;
+        CALLERROR(glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, nWidth, nHeight / nLayers, nLayers, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData));
     }
     else
     {
-        return false;
+        CALLERROR(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData));
+        CALLERROR(glGenerateMipmap(GL_TEXTURE_2D));
     }
 
     stbi_image_free(pData);
     return true;
 }
 
-void Texture::Bind()
+void Texture::ActiveAndBind()
 {
-    CALLERROR(glBindTexture(GL_TEXTURE_2D, m_nTexture));
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_nTexture);
+
+    glActiveTextureARB(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_nTextureArray);
 }
