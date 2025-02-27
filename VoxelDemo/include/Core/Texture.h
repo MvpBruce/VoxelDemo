@@ -4,6 +4,7 @@ class Texture
 {
 private:
     unsigned int m_nTexture;
+    unsigned int m_nTexture1;
     unsigned int m_nTextureArray;
 
 public:

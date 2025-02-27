@@ -280,8 +280,8 @@ void VoxelHandler::PrepareData()
 
     m_nVertexCount = sizeof(indices)/sizeof(unsigned int);
     //position + uv: 3 2
-    m_pVertexData = new unsigned int[m_nVertexCount * 5];
-    memset(m_pVertexData, 0, sizeof(unsigned int) * (m_nVertexCount * 5));
+    m_pVertexData = new float[m_nVertexCount * 5];
+    memset(m_pVertexData, 0, sizeof(float) * (m_nVertexCount * 5));
     unsigned int nOffSet = 0;
     for (int i = 0; i < m_nVertexCount; i++)
     {
@@ -298,11 +298,11 @@ void VoxelHandler::PrepareData()
         }
     }
     
-    m_pVB->AttachData(m_pVertexData, sizeof(unsigned int) * (m_nVertexCount * 5));
+    m_pVB->AttachData(m_pVertexData, sizeof(float) * (m_nVertexCount * 5));
 
     VertexBufferLayout vLayout;
-    vLayout.AddLayout<unsigned int>(3);
-    vLayout.AddLayout<unsigned int>(2);
+    vLayout.AddLayout<float>(3);
+    vLayout.AddLayout<float>(2);
     m_pVA->AddLayout(vLayout);
 
     m_bLoaded = true;

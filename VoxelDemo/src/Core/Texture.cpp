@@ -8,7 +8,7 @@ Texture::Texture()
     stbi_set_flip_vertically_on_load(true);
 
     //Texture
-    glGenTextures(1, &m_nTexture);
+    CALLERROR(glGenTextures(1, &m_nTexture));
     CALLERROR(glBindTexture(GL_TEXTURE_2D, m_nTexture));
     
     //set texture parameters
@@ -18,7 +18,13 @@ Texture::Texture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    LoadTexture("res/textures/frame.png", false);
+    std::string strTextureDir = std::filesystem::current_path().string() + "/assets/textures/";
+    std::string strImg = strTextureDir + "frame.png";
+    if (!LoadTexture(strImg.c_str(), false))
+    {  
+        std::cout << "Failed to Texture: " << strImg << std::endl;
+        return;
+    }
 
     //Texture array
     glGenTextures(1, &m_nTextureArray);
@@ -29,7 +35,12 @@ Texture::Texture()
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    LoadTexture("res/textures/tex_array_0.png", true);
+    strImg = strTextureDir + "tex_array_0.png";
+    if (!LoadTexture(strImg.c_str(), true))
+    {
+        std::cout << "Failed to Texture: " << strImg << std::endl;
+        return;
+    }
 }
 
 Texture::~Texture()
@@ -38,20 +49,28 @@ Texture::~Texture()
 
 bool Texture::LoadTexture(const char *pszPath, bool bIsArray/* = false*/)
 {
-    int nWidth, nHeight, nChanel;
+    int nTotalWidth, nTotalHeight, nChanel;
+    int nReq_comp = 4;
     //Force rgba
-    unsigned char* pData = stbi_load(pszPath, &nWidth, &nHeight, &nChanel, 4);
+    unsigned char* pData = stbi_load(pszPath, &nTotalWidth, &nTotalHeight, &nChanel, nReq_comp);
     if (!pData)
         return false;
 
     if (bIsArray)
     {
-        int nLayers = 3 * nHeight / nWidth;
-        CALLERROR(glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, nWidth, nHeight / nLayers, nLayers, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData));
+
+        int nLayers = 3 * nTotalHeight / nTotalWidth;
+        int nHeight = nTotalHeight / nLayers;
+        CALLERROR(glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, nTotalWidth, nHeight, nLayers, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
+        for (size_t i = 0; i < nLayers; i++)
+        {
+            unsigned char* pLayerData = pData + ((nLayers - 1 - i) * nHeight * nTotalWidth * nReq_comp);
+            CALLERROR(glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, nTotalWidth, nHeight, 1, GL_RGBA, GL_UNSIGNED_BYTE, pLayerData));
+        }
     }
     else
     {
-        CALLERROR(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData));
+        CALLERROR(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nTotalWidth, nTotalHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData));
         CALLERROR(glGenerateMipmap(GL_TEXTURE_2D));
     }
 

@@ -1,9 +1,12 @@
 #include "World.h"
 #include "Chunk.h"
 #include <iostream>
+#include <time.h>
 
 World::World()
 {
+    srand((unsigned long)time(NULL));
+    m_nSeed = (int)(((float)rand() / (float)RAND_MAX) * 1000.0f);
     BuildChunks();
 }
 
@@ -52,4 +55,9 @@ void World::BuildChunkMesh()
     }
 
     std::cout << "Finished buildding chunk meshes" << std::endl;
+}
+
+int World::GetWorldSeed()
+{
+    return m_nSeed;
 }

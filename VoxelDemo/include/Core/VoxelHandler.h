@@ -48,6 +48,6 @@ private:
     bool m_bLoaded;
     std::shared_ptr<VertexBuffer> m_pVB;
     std::shared_ptr<VertexArray> m_pVA;
-    unsigned int* m_pVertexData;
+    float* m_pVertexData;
     unsigned int m_nVertexCount;
 };

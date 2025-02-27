@@ -26,7 +26,16 @@ void VertexArray::AddLayout(VertexBufferLayout &vecLayout)
     {
         auto& ele = vecElements[i];
         glEnableVertexAttribArray(i);
-        glVertexAttribPointer(i, ele.nCount, ele.nType, ele.bNormalized, vecLayout.GetStride(), (const void*)nOffset);
+
+        if (ele.nType == GL_FLOAT)
+        {
+            glVertexAttribPointer(i, ele.nCount, ele.nType, ele.bNormalized, vecLayout.GetStride(), (const void*)nOffset);
+        }
+        else
+        {
+            glVertexAttribIPointer(i, ele.nCount, ele.nType, vecLayout.GetStride(), (const void*)nOffset);
+        }
+        
         nOffset += sizeof(ele.nType) * ele.nCount;
     }
 }

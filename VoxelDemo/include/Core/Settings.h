@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <memory>
 #include <iostream>
+#include <filesystem>
 
 #define CALLERROR(func)\
         {\
@@ -34,23 +35,31 @@ const float ASPECT_RATIO = SCR_WIDTH / SCR_HEIGHT;
 const float V_FOV = glm::radians(50.0f);
 const float H_FOV = glm::radians(50.0f);
 const float Z_NEAR = 0.1f;
-const float Z_FAR = 100.0f;
+const float Z_FAR = 1000.0f;
 const float PITCH_MAX = 89.0f;
 const glm::vec3 FRONT = glm::vec3(0.0f, 0.0f, -1.0f);
 const glm::vec3 RIGHT = glm::vec3(1.0f, 0.0f, 0.0f);
 const glm::vec3 UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
 //World
-const unsigned int WORLD_W = 10;
-const unsigned int WORLD_D = 10;
+const unsigned int WORLD_W = 4;
+const unsigned int WORLD_D = 4;
 const unsigned int WORLD_H = 1;
 const unsigned int WORLD_AREA = WORLD_W * WORLD_D;
 const unsigned int WORLD_VOL = WORLD_AREA * WORLD_H;
 
 //Player
 const glm::vec3 PALYER_POS = glm::vec3(WORLD_W * HALF_CHUNK_SIZE, WORLD_H * CHUNK_SIZE, WORLD_D * CHUNK_SIZE);
-//const glm::vec3 PALYER_POS = glm::vec3(0, 0, 5.0f);
 const float MOUSE_SENSITIVITY = 0.09f;
 const float PLAYER_SPEED = 10.0f;
 const float MAX_RAY_DISTANCE = 6.0f;
+
+//Textures
+const int SAND = 1;
+const int GRASS = 2;
+const int DIRT = 3;
+const int STONE = 4;
+const int SNOW = 5;
+const int LEAVES = 6;
+const int WOOD = 7;
 

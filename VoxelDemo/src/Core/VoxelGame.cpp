@@ -9,8 +9,8 @@
 #include "VoxelHandler.h"
 #include "ShaderManager.h"
 
-float VoxelGame::m_fLastX = SCR_WIDTH / 2;
-float VoxelGame::m_fLastY = SCR_HEIGHT / 2;
+float VoxelGame::m_fLastX = -1.0f;
+float VoxelGame::m_fLastY = -1.0f;
 
 std::shared_ptr<VoxelHandler> g_ptrVoxelHandler;
 
@@ -82,8 +82,8 @@ bool VoxelGame::InitGLW()
     }
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
+    //glEnable(GL_CULL_FACE);
+    //glEnable(GL_BLEND);
     //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -99,7 +99,7 @@ void VoxelGame::InitGame()
     ShaderManager::GetInstance().GetShader("cube")->SetMatrix("project", m_pCamare->GetProjectMatrix());
 
     ShaderManager::GetInstance().CreateShader("chunk")->Use();
-    
+
     if (!m_ptrTexture)
         m_ptrTexture = std::make_shared<Texture>();
     
@@ -161,7 +161,7 @@ void VoxelGame::Render()
 
     
     ShaderManager::GetInstance().GetShader("chunk")->Use();
-    ShaderManager::GetInstance().GetShader("cube")->SetInt("textureArray", 1);
+    ShaderManager::GetInstance().GetShader("chunk")->SetInt("textureArray", 1);
     ShaderManager::GetInstance().GetShader("chunk")->SetMatrix("view", m_pCamare->GetViewMatrix());
 
     m_ptrTexture->ActiveAndBind();
@@ -188,6 +188,13 @@ void VoxelGame::mouseCallback(GLFWwindow *window, double xpos, double ypos)
     float fPosX = static_cast<float>(xpos);
     float fPosY = static_cast<float>(ypos);
     
+    if (m_fLastX == -1.0 && m_fLastY == -1.0)
+    {
+        m_fLastX = fPosX;
+        m_fLastY = fPosY;
+        return;
+    }
+
     float fOffsetX = fPosX - m_fLastX;
     float fOffsetY = fPosY - m_fLastY;
 

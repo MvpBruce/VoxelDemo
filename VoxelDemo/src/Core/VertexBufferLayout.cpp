@@ -46,3 +46,10 @@ void VertexBufferLayout::AddLayout<unsigned char>(unsigned int nCount)
     m_Elements.push_back({nCount, GL_UNSIGNED_BYTE, GL_TRUE});
     m_nStride += nCount * sizeof(GL_UNSIGNED_BYTE);
 }
+
+template<>
+void VertexBufferLayout::AddLayout<int>(unsigned int nCount)
+{
+    m_Elements.push_back({nCount, GL_INT, GL_FALSE});
+    m_nStride += nCount * sizeof(GL_INT);
+}

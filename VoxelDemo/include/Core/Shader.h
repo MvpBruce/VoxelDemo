@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <filesystem>
 
 class Shader
 {
@@ -18,11 +19,25 @@ public:
         Load(pszName);
     }
 
-    void Load(const char* pszName)
+    bool Load(const char* pszName)
     {
-        std::string shaderPath = std::string("res/shaders/") + pszName + ".vs";
+        std::string strCurDir = std::filesystem::current_path().string() + "/";
+        std::string shaderPath = strCurDir + "assets/shaders/" + pszName + ".vs";
+        if (!std::filesystem::exists(shaderPath))
+        {
+            std::cout << "Could't find shader file: " << shaderPath << std::endl;
+            return false;
+        }
+            
         std::string vs = ReadShader(shaderPath.c_str());
-        shaderPath = std::string("res/shaders/") + pszName + ".fs";
+        shaderPath = strCurDir + "assets/shaders/" + pszName + ".fs";
+
+        if (!std::filesystem::exists(shaderPath))
+        {
+            std::cout << "Could't find shader file: " << shaderPath << std::endl;
+            return false;
+        }
+
         std::string fs = ReadShader(shaderPath.c_str());
         const char* pszVS = vs.c_str();
         const char* pszFS = fs.c_str();
@@ -45,6 +60,8 @@ public:
         glDeleteShader(fsShader);
 
         m_nID = nID;
+
+        return true;
     }
 
     void Use()
