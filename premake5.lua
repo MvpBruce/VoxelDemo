@@ -35,7 +35,7 @@ project "VoxelDemo"
 
     includedirs {
         "VoxelDemo/include",
-		"VoxelDemo/include/Core",
+		"VoxelDemo/include/core",
 		"assets"
     }
 	
