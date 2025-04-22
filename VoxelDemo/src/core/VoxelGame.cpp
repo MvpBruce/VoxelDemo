@@ -82,7 +82,7 @@ bool VoxelGame::InitGLW()
     }
 
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     //glEnable(GL_BLEND);
     //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

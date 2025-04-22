@@ -18,7 +18,6 @@ void main()
     face_uv.x = tex_Coord.x / 3.0 - min(face_id_out, 2)/ 3.0;
 
     vec3 tex_col = texture(textureArray, vec3(face_uv, voxel_id_out)).rgb;
-    //vec3 tex_col = texture(textureArray, vec3(face_uv, 5)).rgb;
     tex_col = pow(tex_col, gamma);
     //tex_col.rgb *= voxel_color;
     tex_col = pow(tex_col, inv_gamma);
